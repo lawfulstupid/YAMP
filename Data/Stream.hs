@@ -1,32 +1,45 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module YAMP.Data.Stream where
+module YAMP.Data.Stream (
+   Stream(..)
+) where
 
-import qualified Data.List as List
-import qualified Data.Text as Text
-import qualified Data.Text.Lazy as Text'
-import qualified Data.ByteString.Char8 as BStr
-import qualified Data.ByteString.Lazy.Char8 as BStr'
+import Control.Applicative
+import Data.Maybe (isNothing)
+
+import Data.List (uncons)
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy.Char8 as BS'
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as T'
 
 --------------------------------------------------------------------------------
 
-class Monoid s => Stream c s | s -> c where
-   uncons :: s -> Maybe (c, s)
+class Stream s t | s -> t where
+   next :: Alternative m => s -> m (t,s)
+   null :: s -> Bool
+   null = isNothing . next
+   {-# MINIMAL next #-}
 
---------------------------------------------------------------------------------
-   
-instance Stream a [a] where
-   uncons = List.uncons
-   
-instance Stream Char Text.Text where
-   uncons = Text.uncons
-   
-instance Stream Char Text'.Text where
-   uncons = Text'.uncons
-   
-instance Stream Char BStr.ByteString where
-   uncons = BStr.uncons
-   
-instance Stream Char BStr'.ByteString where
-   uncons = BStr'.uncons
+maybeToMonad :: Alternative m => Maybe a -> m a
+maybeToMonad = \case
+   Nothing -> empty
+   Just x  -> pure x
+
+instance Stream [a] a where
+   next = maybeToMonad . uncons
+
+instance Stream BS.ByteString Char where
+   next = maybeToMonad . BS.uncons
+
+instance Stream BS'.ByteString Char where
+   next = maybeToMonad . BS'.uncons
+
+instance Stream T.Text Char where
+   next = maybeToMonad . T.uncons
+
+instance Stream T'.Text Char where
+   next = maybeToMonad . T'.uncons
