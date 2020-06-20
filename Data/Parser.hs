@@ -1,8 +1,5 @@
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-
 module YAMP.Data.Parser (
-   Parser, runParser, nextToken,
+   Parser, runParser, parseUsing, nextToken,
    module YAMP.Data.Result,
    module YAMP.Data.Stream,
    module Control.Applicative,
@@ -12,17 +9,12 @@ module YAMP.Data.Parser (
 
 --------------------------------------------------------------------------------
 
-import Prelude hiding ((.), id, null)
-
 import YAMP.Data.Stream
 import YAMP.Data.Result
-import Data.Tuple
 
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Zip
-import Data.Bifunctor
-import Control.Category
 
 --------------------------------------------------------------------------------
 
@@ -32,6 +24,12 @@ data Parser m s a = Parser {
 }
 
 runParser = run
+
+parseUsing :: (Stream s t, MonadPlus m) => Parser m s a -> s -> m a
+parseUsing p s = do
+   result <- run p s
+   guard $ complete result
+   pure $ value result
 
 --------------------------------------------------------------------------------
 
@@ -73,4 +71,3 @@ instance MonadPlus m => Monoid (Parser m t a) where
 
 nextToken :: (Stream s t, Alternative m) => Parser m s t
 nextToken = Parser $ \s -> fmap toResult $ next s
-

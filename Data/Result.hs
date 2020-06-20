@@ -1,5 +1,5 @@
 module YAMP.Data.Result (
-   Result, toResult, value, remainder
+   Result, toResult, value, remainder, complete
 ) where
 
 import YAMP.Data.Stream
