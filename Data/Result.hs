@@ -10,6 +10,9 @@ data Result s a = Result s a
 
 --------------------------------------------------------------------------------
 
+instance (Show a, Show s) => Show (Result s a) where
+   show (Result s a) = "(" ++ show a ++ "|" ++ show s ++ ")"
+
 instance Functor (Result s) where
    fmap f (Result s x) = Result s $ f x
 
