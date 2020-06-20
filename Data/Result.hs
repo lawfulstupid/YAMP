@@ -2,6 +2,8 @@ module YAMP.Data.Result (
    Result, toResult, value, remainder
 ) where
 
+import YAMP.Data.Stream
+
 --------------------------------------------------------------------------------
 
 data Result s a = Result s a
@@ -21,3 +23,6 @@ value (Result _ a) = a
 
 remainder :: Result s a -> s
 remainder (Result s _) = s
+
+complete :: Stream s t => Result s a -> Bool
+complete = isEmpty . remainder

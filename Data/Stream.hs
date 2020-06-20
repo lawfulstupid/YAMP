@@ -20,8 +20,8 @@ import qualified Data.Text.Lazy as T'
 
 class Stream s t | s -> t where
    next :: Alternative m => s -> m (t,s)
-   null :: s -> Bool
-   null = isNothing . next
+   isEmpty :: s -> Bool
+   isEmpty = isNothing . next
    {-# MINIMAL next #-}
 
 maybeToMonad :: Alternative m => Maybe a -> m a
