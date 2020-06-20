@@ -26,10 +26,7 @@ data Parser m s a = Parser {
 runParser = run
 
 parseUsing :: (Stream s t, MonadPlus m) => Parser m s a -> s -> m a
-parseUsing p s = do
-   result <- run p s
-   guard $ complete result
-   pure $ value result
+parseUsing p s = run p s >>= finalise
 
 --------------------------------------------------------------------------------
 

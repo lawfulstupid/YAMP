@@ -1,8 +1,9 @@
 module YAMP.Data.Result (
-   Result, toResult, value, remainder, complete
+   Result, toResult, value, remainder, complete, finalise
 ) where
 
 import YAMP.Data.Stream
+import Control.Monad
 
 --------------------------------------------------------------------------------
 
@@ -29,3 +30,8 @@ remainder (Result s _) = s
 
 complete :: Stream s t => Result s a -> Bool
 complete = isEmpty . remainder
+
+finalise :: (Stream s t, MonadPlus m) => Result s a -> m a
+finalise result = do
+   guard $ complete result
+   pure $ value result
