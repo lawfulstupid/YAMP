@@ -31,6 +31,17 @@ runParser = run
 parseUsing :: (Stream s t, MonadPlus m) => Parser m t a -> s -> m a
 parseUsing p s = run p s >>= finalise
 
+readerToParser :: ReadS a -> Parser [] Char a
+readerToParser f = Parser $ \s -> do
+   (x,r) <- f (toList s)
+   pure $ toResult (x, fromList r)
+
+-- s :: Stream s Char => s
+-- toList :: Stream s t => s -> [t]
+-- toList s :: String
+-- f :: String -> [(a,String)]
+-- f (toList s) :: [(a,String)]
+
 --------------------------------------------------------------------------------
 
 instance Functor m => Functor (Parser m t) where
