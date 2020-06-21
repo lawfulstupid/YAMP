@@ -1,3 +1,5 @@
+{-# LANGUAGE Rank2Types #-}
+
 module YAMP.Data.Parser (
    Parser, runParser, parseUsing, nextToken,
    module YAMP.Data.Result,
@@ -19,13 +21,14 @@ import Control.Monad.Zip
 --------------------------------------------------------------------------------
 
 -- A Parser takes a stream of tokens and produces zero or more results
-data Parser m s a = Parser {
-   run :: s -> m (Result s a)
+data Parser m t a = Parser {
+   run :: forall s. Stream s t => s -> m (Result s a)
 }
 
+runParser :: Stream s t => Parser m t a -> s -> m (Result s a)
 runParser = run
 
-parseUsing :: (Stream s t, MonadPlus m) => Parser m s a -> s -> m a
+parseUsing :: (Stream s t, MonadPlus m) => Parser m t a -> s -> m a
 parseUsing p s = run p s >>= finalise
 
 --------------------------------------------------------------------------------
@@ -66,5 +69,5 @@ instance MonadPlus m => Monoid (Parser m t a) where
 
 --------------------------------------------------------------------------------
 
-nextToken :: (Stream s t, Alternative m) => Parser m s t
-nextToken = Parser $ \s -> fmap toResult $ next s
+nextToken :: Alternative m => Parser m t t
+nextToken = Parser $ fmap toResult . next
