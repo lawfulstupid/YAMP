@@ -28,9 +28,11 @@ value (Result _ a) = a
 remainder :: Result s a -> s
 remainder (Result s _) = s
 
+-- checks if input stream is empty
 complete :: Stream s t => Result s a -> Bool
 complete = isEmpty . remainder
 
+-- converts completed results (input stream is empty) into parser output
 finalise :: (Stream s t, MonadPlus m) => Result s a -> m a
 finalise result = do
    guard $ complete result

@@ -21,6 +21,9 @@ import Control.Monad.Zip
 --------------------------------------------------------------------------------
 
 -- A Parser takes a stream of tokens and produces zero or more results
+-- m = underlying monad, output will be wrapped in this (e.g. [] or Maybe)
+-- t = tokens read (e.g. Char if input is a String)
+-- a = output type (i.e. the data structure you're parsing)
 data Parser m t a = Parser {
    run :: forall s. Stream s t => s -> m (Result s a)
 }
