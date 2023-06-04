@@ -29,6 +29,9 @@ class Stream s t | s -> t where
    
    fromList :: Stream s t => [t] -> s
 
+   slength :: s -> Int
+   slength = length . toList
+
    smap :: (t -> t) -> s -> s
    smap f = fromList . map f . toList
 
@@ -44,27 +47,33 @@ instance Stream [a] a where
    isEmpty = null
    toList = id
    fromList = id
+   slength = length
 
 instance Stream BS.ByteString Char where
    next = maybeToMonad . BS.uncons
    isEmpty = BS.null
    toList = BS.unpack
    fromList = BS.pack
+   slength = BS.length
 
 instance Stream BS'.ByteString Char where
    next = maybeToMonad . BS'.uncons
    isEmpty = BS'.null
    toList = BS'.unpack
    fromList = BS'.pack
+   slength = fromIntegral . BS'.length
 
 instance Stream T.Text Char where
    next = maybeToMonad . T.uncons
    isEmpty = T.null
    toList = T.unpack
    fromList = T.pack
+   slength = T.length
 
 instance Stream T'.Text Char where
    next = maybeToMonad . T'.uncons
    isEmpty = T'.null
    toList = T'.unpack
    fromList = T'.pack
+   slength = fromIntegral . T'.length
+
