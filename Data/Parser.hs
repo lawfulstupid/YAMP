@@ -1,7 +1,7 @@
 {-# LANGUAGE Rank2Types #-}
 
 module YAMP.Data.Parser (
-   Parser, runParser, parseUsing, nextToken,
+   Parser, runParser, parseUsing, nextToken, peek, mapInput,
    module YAMP.Data.Result,
    module YAMP.Data.Stream,
    module Control.Applicative,
@@ -18,6 +18,9 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Zip
 
+import Data.Foldable (foldl')
+import Data.Maybe (fromMaybe)
+
 --------------------------------------------------------------------------------
 
 -- A Parser takes a stream of tokens and produces zero or more results
@@ -27,6 +30,8 @@ import Control.Monad.Zip
 data Parser m t a = Parser {
    run :: forall s. Stream s t => s -> m (Result s a)
 }
+
+type StdOut a = [Result String a]
 
 runParser :: Stream s t => Parser m t a -> s -> m (Result s a)
 runParser = run
@@ -38,12 +43,6 @@ readerToParser :: ReadS a -> Parser [] Char a
 readerToParser f = Parser $ \s -> do
    (x,r) <- f (toList s)
    pure $ toResult (x, fromList r)
-
--- s :: Stream s Char => s
--- toList :: Stream s t => s -> [t]
--- toList s :: String
--- f :: String -> [(a,String)]
--- f (toList s) :: [(a,String)]
 
 --------------------------------------------------------------------------------
 
@@ -83,5 +82,26 @@ instance MonadPlus m => Monoid (Parser m t a) where
 
 --------------------------------------------------------------------------------
 
+-- Consume one token
 nextToken :: Alternative m => Parser m t t
-nextToken = Parser $ fmap toResult . next
+nextToken = Parser (fmap toResult . next)
+
+-- Consume nothing, produce ()
+unit :: Applicative m => Parser m t ()
+unit = Parser (pure . curry toResult ())
+
+-- Parses without consuming tokens
+peek :: Functor m => Parser m t a -> Parser m t a
+peek p = Parser $ \s -> setInput s <$> run p s
+
+-- Transform input stream before consuming
+mapInput :: Applicative m => (forall s. Stream s t => s -> s) -> Parser m t ()
+mapInput f = Parser (pure . curry toResult () . f)
+
+-- Only returns results with minimal remaining input
+greedy :: (Foldable m, MonadPlus m) => Parser m t a -> Parser m t a
+greedy p = Parser $ \s -> let
+   results = run p s -- m (Result s a)
+   minrem = fromMaybe 0 $ foldr (liftA2 min) Nothing $ fmap (Just . slength . remainder) results
+   in mfilter ((== minrem) . slength . remainder) results
+
