@@ -1,5 +1,5 @@
 module YAMP.Data.Result (
-   Result, toResult, value, remainder, complete, finalise
+   Result, toResult, value, remainder, setInput, complete, finalise
 ) where
 
 import YAMP.Data.Stream
@@ -27,6 +27,9 @@ value (Result _ a) = a
 
 remainder :: Result s a -> s
 remainder (Result s _) = s
+
+setInput :: s -> Result s a -> Result s a
+setInput s (Result _ x) = Result s x
 
 -- checks if input stream is empty
 complete :: Stream s t => Result s a -> Bool

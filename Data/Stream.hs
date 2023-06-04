@@ -28,7 +28,10 @@ class Stream s t | s -> t where
    toList s = next s >>= uncurry (:) . fmap toList
    
    fromList :: Stream s t => [t] -> s
-   
+
+   smap :: (t -> t) -> s -> s
+   smap f = fromList . map f . toList
+
    {-# MINIMAL next, fromList #-}
 
 maybeToMonad :: Alternative m => Maybe a -> m a
