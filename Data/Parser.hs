@@ -11,7 +11,7 @@ module YAMP.Data.Parser (
 
 --------------------------------------------------------------------------------
 
-import AbLib.Control.Monad (remonad)
+import AbLib.Control.Monad
 
 import YAMP.Data.Stream
 import YAMP.Data.Result
@@ -60,7 +60,10 @@ class Parse t a | a -> t where
 --------------------------------------------------------------------------------
 
 readerToParser :: MonadPlus m => ReadS a -> Parser m Char a
-readerToParser reader = Parser (fmap (toResult . fmap fromList) . remonad . reader . toList)
+readerToParser reader = Parser ((toResult . fmap fromList) <.> remonad . reader . toList)
+
+readParser :: (Read a, MonadPlus m) => Parser m Char a
+readParser = readerToParser $ readsPrec 0
 
 parserToReader :: (Foldable m, Functor m) => Parser m Char a -> ReadS a
 parserToReader p = fmap fromResult . remonad . run p
