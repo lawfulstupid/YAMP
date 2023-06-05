@@ -1,6 +1,4 @@
-module YAMP.Data.Result (
-   Result, toResult, value, remainder, setInput, complete, finalise
-) where
+module YAMP.Data.Result where
 
 import YAMP.Data.Stream
 import Control.Monad
@@ -21,6 +19,9 @@ instance Functor (Result s) where
 
 toResult :: (a,s) -> Result s a
 toResult (x,s) = Result s x
+
+fromResult :: Result s a -> (a,s)
+fromResult (Result s x) = (x,s)
 
 value :: Result s a -> a
 value (Result _ a) = a
