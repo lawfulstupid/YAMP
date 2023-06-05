@@ -1,7 +1,7 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE FunctionalDependencies, Rank2Types #-}
 
 module YAMP.Data.Parser (
-   Parser, runParser, parseUsing, nextToken, peek, mapInput,
+   Parser, Parse(..), runParser, parseUsing, nextToken, peek, mapInput,
    module YAMP.Data.Result,
    module YAMP.Data.Stream,
    module Control.Applicative,
@@ -40,6 +40,24 @@ runParser = run
 
 parseUsing :: (Stream s t, MonadPlus m) => Parser m t a -> s -> m a
 parseUsing p s = run p s >>= finalise
+
+fullParseUsing :: Stream s t => Parser [] t a -> s -> a
+fullParseUsing p s = case parseUsing p s of
+   [x] -> x
+   _   -> errorWithoutStackTrace "no parse"
+
+--------------------------------------------------------------------------------
+
+class Parse t a | a -> t where
+   parser :: MonadPlus m => Parser m t a
+
+   parse :: (MonadPlus m, Stream s t) => s -> m a
+   parse = parseUsing parser
+   
+   fullParse :: Stream s t => s -> a
+   fullParse = fullParseUsing parser
+
+--------------------------------------------------------------------------------
 
 readerToParser :: MonadPlus m => ReadS a -> Parser m Char a
 readerToParser reader = Parser (fmap (toResult . fmap fromList) . remonad . reader . toList)
