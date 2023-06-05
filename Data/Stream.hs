@@ -7,6 +7,8 @@ module YAMP.Data.Stream (
    Stream(..)
 ) where
 
+import AbLib.Control.Monad (remonad)
+
 import Control.Applicative
 import Data.Maybe (isNothing)
 
@@ -37,41 +39,36 @@ class Stream s t | s -> t where
 
    {-# MINIMAL next, fromList #-}
 
-maybeToMonad :: Alternative m => Maybe a -> m a
-maybeToMonad = \case
-   Nothing -> empty
-   Just x  -> pure x
-
 instance Stream [a] a where
-   next = maybeToMonad . uncons
+   next = remonad . uncons
    isEmpty = null
    toList = id
    fromList = id
    slength = length
 
 instance Stream BS.ByteString Char where
-   next = maybeToMonad . BS.uncons
+   next = remonad . BS.uncons
    isEmpty = BS.null
    toList = BS.unpack
    fromList = BS.pack
    slength = BS.length
 
 instance Stream BS'.ByteString Char where
-   next = maybeToMonad . BS'.uncons
+   next = remonad . BS'.uncons
    isEmpty = BS'.null
    toList = BS'.unpack
    fromList = BS'.pack
    slength = fromIntegral . BS'.length
 
 instance Stream T.Text Char where
-   next = maybeToMonad . T.uncons
+   next = remonad . T.uncons
    isEmpty = T.null
    toList = T.unpack
    fromList = T.pack
    slength = T.length
 
 instance Stream T'.Text Char where
-   next = maybeToMonad . T'.uncons
+   next = remonad . T'.uncons
    isEmpty = T'.null
    toList = T'.unpack
    fromList = T'.pack
