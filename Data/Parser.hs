@@ -4,8 +4,6 @@ module YAMP.Data.Parser (
    Parser, runParser, parseUsing, fullParseUsing, Parse(..), StdOut,
    readerToParser, readParser, parserToReader,
    nextToken, peek, mapInput, greedy,
-   module YAMP.Data.Result,
-   module YAMP.Data.Stream,
    module Control.Applicative,
    module Control.Monad,
    module Control.Monad.Zip
