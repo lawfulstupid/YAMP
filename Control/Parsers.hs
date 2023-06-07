@@ -3,10 +3,11 @@ module YAMP.Control.Parsers where
 import YAMP.Data.Parser
 import YAMP.Data.Types
 import YAMP.Data.Stream (isEmpty, fromList)
+import YAMP.Control.Combinators
 import Data.Char (isSpace)
 
 -- Matches a nonempty region of contiguous whitespace
-whitespace :: MonadPlus => Parser m Char String
+whitespace :: MonadPlus m => Parser m Char String
 whitespace = some $ charThat isSpace
 
 -- Matches a nonempty region of contiguous horizontal whitespace
