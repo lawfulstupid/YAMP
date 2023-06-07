@@ -1,4 +1,4 @@
-{-# LANGUAGE FunctionalDependencies, Rank2Types #-}
+{-# LANGUAGE FlexibleContexts, FunctionalDependencies, Rank2Types #-}
 
 module YAMP.Data.Parser (
    Parser, runParser, parseUsing, fullParseUsing, Parse(..), StdOut,
@@ -48,14 +48,14 @@ fullParseUsing p s = case parseUsing p s of
 
 --------------------------------------------------------------------------------
 
-class Parse t a | a -> t where
-   parser :: MonadPlus m => Parser m t a
+class Parse m t a | a -> t where
+   parser :: Parser m t a
 
    parse :: (MonadPlus m, Stream s t) => s -> m a
    parse = parseUsing parser
    
-   fullParse :: Stream s t => s -> a
-   fullParse = fullParseUsing parser
+fullParse :: (Parse [] t a, Stream s t) => s -> a
+fullParse = fullParseUsing parser
 
 --------------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ module YAMP.Data.Types where
 import YAMP.Data.Parser
 import YAMP.Control.Combinators
 
-instance Parse Char Char where
+instance MonadPlus m => Parse m Char Char where
    parser = nextToken
 
 -- Matches given character
@@ -24,7 +24,7 @@ charThat test = do
    pure c
 
 
-instance Parse Char String where
+instance MonadPlus m => Parse m Char String where
    parser = many nextToken
 
 -- Matches given string
@@ -36,7 +36,7 @@ anyString :: MonadPlus m => Parser m Char String
 anyString = parser
 
 
-instance Parse Char Integer where
+instance MonadPlus m => Parse m Char Integer where
    parser = readParser
 
 -- Matches a given integer as a Num

@@ -18,7 +18,7 @@ between (a,b) f = do
 
 -- Matches the given value
 -- E.g. match 'x' or match "foobar"
-match :: (Parse t a, Eq a, MonadPlus m) => a -> Parser m t a
+match :: (Parse m t a, Eq a, MonadPlus m) => a -> Parser m t a
 match t = do
    x <- parser
    guard (t == x)
@@ -26,6 +26,6 @@ match t = do
 
 -- Matches any of the given values
 -- E.g. matchAny ["foo", "bar"]
-matchAny :: (Parse t a, Eq a, MonadPlus m, Foldable f) => f a -> Parser m t a
+matchAny :: (Parse m t a, Eq a, MonadPlus m, Foldable f) => f a -> Parser m t a
 matchAny = foldMap match
 
