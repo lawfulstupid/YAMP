@@ -122,6 +122,5 @@ mapInput f = Parser $ \s -> pure $ Result (f s) ()
 greedy :: (Foldable m, MonadPlus m) => Parser m t a -> Parser m t a
 greedy p = Parser $ \s -> let
    results = run p s
-   minrem = fromMaybe 0 $ foldr (liftA2 min) Nothing $ fmap (Just . slength . remainder) results
+   minrem = fromMaybe 0 $ foldr (liftU2 min) Nothing $ fmap (Just . slength . remainder) results
    in mfilter ((== minrem) . slength . remainder) results
-
