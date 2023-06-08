@@ -3,14 +3,14 @@
 module YAMP.Data.Types where
 
 import YAMP.Data.Parser
-import YAMP.Control.Combinators
+import Data.Char (isDigit)
 
 instance MonadPlus m => Parse m Char Char where
    parser = nextToken
 
 -- Matches given character
 char :: MonadPlus m => Char -> Parser m Char Char
-char = match
+char c = charThat (== c)
 
 -- Matches any character
 anyChar :: MonadPlus m => Parser m Char Char
@@ -29,20 +29,31 @@ instance MonadPlus m => Parse m Char String where
 
 -- Matches given string
 string :: MonadPlus m => String -> Parser m Char String
-string = match
+string s = stringThat (== s)
 
 -- Matches any string
 anyString :: MonadPlus m => Parser m Char String
 anyString = parser
 
+stringThat :: MonadPlus m => (String -> Bool) -> Parser m Char String
+stringThat test = do
+   s <- anyString
+   guard (test s)
+   pure s
 
 instance MonadPlus m => Parse m Char Integer where
-   parser = readParser
+   parser = peek (charThat isDigit) >> readParser
 
 -- Matches a given integer as a Num
-int :: (MonadPlus m, Integral a, Num b) => a -> Parser m Char b
-int n = fromInteger <$> match (fromIntegral n)
+int :: (Num a, Eq a, MonadPlus m) => a -> Parser m Char a
+int n = intThat (== n)
 
 -- Matches any integer as a Num
-anyInt :: (MonadPlus m, Num a) => Parser m Char a
+anyInt :: (Num a, MonadPlus m) => Parser m Char a
 anyInt = fromInteger <$> parser
+
+intThat :: (Num a, MonadPlus m) => (a -> Bool) -> Parser m Char a
+intThat test = do
+   n <- anyInt
+   guard (test n)
+   pure n
