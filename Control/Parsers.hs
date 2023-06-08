@@ -18,6 +18,10 @@ hspace = some $ matchAny "\9\32\160\5760\8192\8193\8194\8195\8196\8197\8198\8199
 vspace :: MonadPlus m => Parser m Char String
 vspace = some $ matchAny "\10\11\12\13\133\8232\8233"
 
+-- Matches non-whitespace
+blackspace :: MonadPlus m => Parser m Char String
+blackspace = many $ charThat (not . isSpace)
+
 -- Matches a letter
 letter :: MonadPlus m => Parser m Char Char
 letter = letter_upper <|> letter_lower
