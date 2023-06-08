@@ -22,6 +22,10 @@ vspace = some $ matchAny "\10\11\12\13\133\8232\8233"
 blackspace :: MonadPlus m => Parser m Char String
 blackspace = many $ charThat (not . isSpace)
 
+-- Matches a line (anyString without newlines)
+line :: MonadPlus m => Parser m Char String
+line = many $ charThat (\c -> not $ elem c "\10\11\12\13\133\8232\8233")
+
 -- Matches a letter
 letter :: MonadPlus m => Parser m Char Char
 letter = letter_upper <|> letter_lower
