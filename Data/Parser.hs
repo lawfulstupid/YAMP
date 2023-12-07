@@ -1,9 +1,9 @@
 {-# LANGUAGE FlexibleContexts, FunctionalDependencies, Rank2Types #-}
 
 module YAMP.Data.Parser (
-   Parser, runParser, parseUsing, fullParseUsing, Parse(..), StdOut,
+   Parser, runParser, parseUsing, fullParseUsing, Parse(..), fullParse, StdOut,
    readerToParser, readParser, parserToReader,
-   nextToken, peek, mapInput, greedy,
+   nextToken, peek, mapInput, greedy, (|>),
    module Control.Applicative,
    module Control.Monad,
    module Control.Monad.Zip
@@ -124,3 +124,8 @@ greedy p = Parser $ \s -> let
    results = run p s
    minrem = fromMaybe 0 $ foldr (liftU2 min) Nothing $ fmap (Just . slength . remainder) results
    in mfilter ((== minrem) . slength . remainder) results
+
+(|>) :: (MonadPlus m, Foldable m) => Parser m t a -> Parser m t a -> Parser m t a
+(|>) p q = Parser $ \s -> let
+   results = run p s
+   in if null results then run q s else results
